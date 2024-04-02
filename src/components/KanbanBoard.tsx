@@ -35,6 +35,14 @@ const KanbanBoard = () => {
     setColumns([...columns, columnToAdd]);
   };
 
+  const updateColumn = (id: Id, title: string) => {
+    const newColumns = columns.map((col) => {
+      if (col.id !== id) return col;
+      return { ...col, title };
+    });
+    setColumns(newColumns);
+  };
+
   const deleteColumn = (id: Id) => {
     const filteredColumns = columns.filter((col) => col.id != id);
     setColumns(filteredColumns);
@@ -83,6 +91,7 @@ const KanbanBoard = () => {
                 <ColumnContainer
                   key={col.id}
                   column={col}
+                  updateColumn={updateColumn}
                   deleteColumn={deleteColumn}
                 />
               ))}
@@ -100,6 +109,7 @@ const KanbanBoard = () => {
           <DragOverlay>
             {activeColumn && (
               <ColumnContainer
+                updateColumn={updateColumn}
                 column={activeColumn}
                 deleteColumn={deleteColumn}
               />

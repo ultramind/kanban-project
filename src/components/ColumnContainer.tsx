@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Column, Id } from "../types";
 import TrashIcon from "./icons/TrashIcon";
 import { useSortable } from "@dnd-kit/sortable";
@@ -6,10 +7,12 @@ import { CSS } from "@dnd-kit/utilities";
 interface Props {
   column: Column;
   deleteColumn: (id: Id) => void;
+  updateColumn: (id: Id, title: string) => void;
 }
 
 const ColumnContainer = (props: Props) => {
-  const { column, deleteColumn } = props;
+  const { column, deleteColumn, updateColumn } = props;
+  const [editMode, setEditMode] = useState(false);
   const {
     setNodeRef,
     attributes,
@@ -23,6 +26,7 @@ const ColumnContainer = (props: Props) => {
       type: "Column",
       column,
     },
+    disabled: editMode,
   });
 
   const style = { transition, transform: CSS.Transform.toString(transform) };
@@ -46,6 +50,7 @@ const ColumnContainer = (props: Props) => {
       <div
         {...attributes}
         {...listeners}
+        onClick={() => setEditMode(true)}
         className="w-full h-[55px] bg-mainBackgroundColor flex items-center justify-between cursor-grab rounded-lg rounded-b-none font-bold border-4 border-columBackgroundColor p-3"
       >
         {/* title */}
@@ -53,8 +58,22 @@ const ColumnContainer = (props: Props) => {
           <span className="px-2 py-1 rounded-full bg-columBackgroundColor">
             0
           </span>
-          {column.title}
-        </div>{" "}
+          {!editMode && column.title}
+          {editMode && (
+            <input
+              className="px-2 py-[0.5] bg-columBackgroundColor rounded outline-none focus:outline-rose-500"
+              type="text"
+              value={column.title}
+              autoFocus
+              onChange={(e) => updateColumn(column.id, e.target.value)}
+              onBlur={() => setEditMode(false)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return false;
+                setEditMode(false);
+              }}
+            />
+          )}
+        </div>
         <button
           onClick={() => deleteColumn(column.id)}
           className="stroke-gray-500 hover:stroke-white hover:bg-columBackgroundColor rounded"
