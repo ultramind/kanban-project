@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Id, Task } from "../types";
 import TrashIcon from "./icons/TrashIcon";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
   task: Task;
@@ -13,6 +15,35 @@ const TaskCard = (props: Props) => {
   const [mouseIsOver, setMouseIsOver] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      type: "Task",
+      task,
+    },
+  });
+
+  const style = { transition, transform: CSS.Transform.toString(transform) };
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className="h-[100px] w-full p-2 bg-mainBackgroundColor rounded-lg flex items-center border-2 border-rose-500 opacity-30 relative cursor-grab"
+      ></div>
+    );
+  }
+
   const toggleEditMode = () => {
     setEditMode((prev) => !prev);
     setMouseIsOver(false);
@@ -21,6 +52,10 @@ const TaskCard = (props: Props) => {
   if (editMode) {
     return (
       <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
         onClick={toggleEditMode}
         onMouseEnter={() => setMouseIsOver(true)}
         onMouseLeave={() => setMouseIsOver(false)}
@@ -45,12 +80,18 @@ const TaskCard = (props: Props) => {
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       onClick={toggleEditMode}
       onMouseEnter={() => setMouseIsOver(true)}
       onMouseLeave={() => setMouseIsOver(false)}
-      className="h-[100px] w-full p-2 bg-mainBackgroundColor rounded-lg flex items-center hover:ring-2 hover:ring-inset hover:ring-rose-500 relative"
+      className="h-[100px] w-full p-2 bg-mainBackgroundColor rounded-lg flex items-center hover:ring-2 hover:ring-inset hover:ring-rose-500 relative cursor-grab"
     >
-      {task.content}
+      <p className="h-[95%] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap task">
+        {task.content}
+      </p>
       {mouseIsOver && (
         <button
           onClick={() => deleteTask(task.id)}
