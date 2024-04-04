@@ -54,7 +54,7 @@ const ColumnContainer = (props: Props) => {
         ref={setNodeRef}
         style={style}
         className="w-[350px] h-[500px] bg-columBackgroundColor rounded-lg border-2 border-pink-900 flex flex-col p-1"
-      ></div>
+      />
     );
   }
 

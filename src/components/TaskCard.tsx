@@ -37,8 +37,6 @@ const TaskCard = (props: Props) => {
       <div
         ref={setNodeRef}
         style={style}
-        {...attributes}
-        {...listeners}
         className="h-[100px] w-full p-2 bg-mainBackgroundColor rounded-lg flex items-center border-2 border-rose-500 opacity-30 relative cursor-grab"
       ></div>
     );

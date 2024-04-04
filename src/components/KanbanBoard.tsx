@@ -51,6 +51,9 @@ const KanbanBoard = () => {
   const deleteColumn = (id: Id) => {
     const filteredColumns = columns.filter((col) => col.id != id);
     setColumns(filteredColumns);
+
+    const newTasks = tasks.filter((task) => task.id !== id);
+    setTasks(newTasks);
   };
 
   const onDragStart = (event: DragStartEvent) => {
@@ -67,6 +70,8 @@ const KanbanBoard = () => {
   };
 
   const onDragEnd = (event: DragEndEvent) => {
+    setActiveColumn(null);
+    setActiveTask(null);
     const { active, over } = event;
 
     if (!over) return;
@@ -100,12 +105,29 @@ const KanbanBoard = () => {
     const isActiveTask = active.data.current?.type === "Task";
     const isOverTask = over?.data.current?.type === "Task";
 
+    if (!isActiveTask) return;
+
     // droping the task over another task.
     if (isActiveTask && isOverTask) {
       setTasks((tasks) => {
-        const activeTaskIndex = tasks.findIndex((task) => task.id === activeId);
-        const overTaskIndex = tasks.findIndex((task) => task.id === overId);
-        return arrayMove(tasks, activeTaskIndex, overTaskIndex);
+        const activeIndex = tasks.findIndex((task) => task.id === activeId);
+        const overIndex = tasks.findIndex((task) => task.id === overId);
+
+        if (tasks[activeIndex].columnId !== tasks[overIndex].columnId) {
+          tasks[activeIndex].columnId = tasks[overIndex].columnId;
+        }
+
+        return arrayMove(tasks, activeIndex, overIndex);
+      });
+    }
+
+    const isOverColumn = over.data.current?.type === "Column";
+    if (isActiveTask && isOverColumn) {
+      setTasks((tasks) => {
+        const activeIndex = tasks.findIndex((task) => task.id === activeId);
+        tasks[activeIndex].columnId = overId;
+
+        return arrayMove(tasks, activeIndex, activeIndex);
       });
     }
 
@@ -175,7 +197,9 @@ const KanbanBoard = () => {
                 column={activeColumn}
                 deleteColumn={deleteColumn}
                 createNewTask={createNewTask}
-                tasks={tasks}
+                tasks={tasks.filter(
+                  (task) => task.columnId === activeColumn.id
+                )}
                 deleteTask={deleteTask}
                 updateTask={updateTask}
               />
